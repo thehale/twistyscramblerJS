@@ -1,0 +1,19 @@
+{
+  "name": "twistyscramblerjs",
+  "version": "1.0.0",
+  "description": "A twisty puzzle scramble generator written in JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "rubiks",
+    "scramble",
+    "puzzle",
+    "twisty",
+    "generator",
+    "wca"
+  ],
+  "author": "Joseph Hale",
+  "license": "MIT"
+}
