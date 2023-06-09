@@ -32,8 +32,8 @@ class Scrambler {
     let lastMove = scramble[scramble.length - 1];
     if (lastMove) {
       let moves = moveset
-        .filter((move) => move.face.label != lastMove.face.label)
-        .filter((move) => move.face.label != lastMove.face.opposite);
+        // .filter((move) => move.face.label != lastMove.face.label)
+        // .filter((move) => move.face.label != lastMove.face.opposite);
       let index = Math.floor(Math.random() * moves.length);
       return moves[index];
     } else {
@@ -112,8 +112,57 @@ class NbyN extends Puzzle {
   }
 }
 
-let scrambler = new Scrambler(new NbyN(2));
-let scrambleMoves = scrambler.generateScramble().map((move) => move.toString());
-let scramble = scrambleMoves.join(" ");
-console.log(scramble);
+function containsInverses(scramble) {
+  let matchingIndices = []
+  for (let i = 0; i < scramble.length - 1; i++){
+    let matchFace = scramble[i].face.label == scramble[i+1].face.label;
+    let matchDoubleRotation = scramble[i].rotation == "2" && scramble[i+1].rotation == "2";
+    let matchOppositeRotation = scramble[i].rotation == "" && scramble[i+1].rotation == "'";
+    let matchInverse = matchDoubleRotation || matchOppositeRotation;
+    if (matchFace && matchInverse) {
+      matchingIndices.push([i, i+1])
+    }
+  }
+  return matchingIndices.length > 0;
+}
+function containsCancellation(scramble) {
+  let matchingIndices = []
+  for (let i = 0; i < scramble.length - 1; i++){
+    if (scramble[i].face.label == scramble[i+1].face.label) {
+      matchingIndices.push([i, i+1])
+    }
+  }
+  return matchingIndices.length > 0;
+}
+function containsSpacedCancellation(scramble) {
+  let matchingIndices = []
+  for (let i = 0; i < scramble.length - 2; i++){
+    if (scramble[i].face.label == scramble[i+2].face.label && scramble[i].face.opposite == scramble[i+1].face.label) {
+      matchingIndices.push([i, i+2])
+    }
+  }
+  return matchingIndices.length > 0;
+}
+
+let scrambler = new Scrambler(new NbyN(3));
+const SCRAMBLE_COUNT = 100000;
+let inverseCount = 0;
+let cancellationCount = 0;
+let spacedCancellationCount = 0;
+for (let i = 0; i < SCRAMBLE_COUNT; i++) {
+  let scramble = scrambler.generateScramble();
+  if (containsInverses(scramble)) {
+    inverseCount++;
+  }
+  if (containsCancellation(scramble)) {
+    cancellationCount++;
+  }
+  if (containsSpacedCancellation(scramble)) {
+    spacedCancellationCount++;
+  }
+}
+
+console.log(`${inverseCount}/${SCRAMBLE_COUNT} contained inverses (${(inverseCount/SCRAMBLE_COUNT*100).toFixed(2)}%)`);
+console.log(`${cancellationCount}/${SCRAMBLE_COUNT} contained cancellations (${(cancellationCount/SCRAMBLE_COUNT*100).toFixed(2)}%)`);
+console.log(`${spacedCancellationCount}/${SCRAMBLE_COUNT} contained spaced cancellations (${(spacedCancellationCount/SCRAMBLE_COUNT*100).toFixed(2)}%)`);
 console.log("pause");
